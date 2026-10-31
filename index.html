@@ -46,7 +46,7 @@ button,select{font:inherit}.hidden{display:none!important}
    <button class="choice" data-value="2x2">2 × 2<small>4 pictures</small></button><button class="choice selected" data-value="2x3">2 × 3<small>6 pictures</small></button><button class="choice" data-value="3x3">3 × 3<small>9 pictures</small></button><button class="choice" data-value="3x4">3 × 4<small>12 pictures</small></button><button class="choice" data-value="4x4">4 × 4<small>16 pictures</small></button>
   </div></div>
   <button id="start" class="start">Start Game</button>
-  <p class="version">Version 19 · Designed &amp; Created by Sadegh Mosleh · © 2026</p>
+  <p class="version">Version 20 · Designed &amp; Created by Sadegh Mosleh · © 2026</p>
  </section>
 </main>
 <main id="game" class="hidden">
@@ -85,7 +85,7 @@ function selectNumber(index){if(phase!=='choose-number'||answered.has(index)||in
 const ALIASES={rhinoceros:['rhino'],hippopotamus:['hippo'],bacterium:['bacteria','germ'],locomotive:['train'],excavator:['digger'],goggles:['safety goggles'],DNA:['d n a'],scissors:['scissor']};
 function normalize(s){return s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
 function isObjectAnswer(heard,name){const h=` ${normalize(heard)} `,answers=[name,...(ALIASES[name]||[])].map(x=>` ${normalize(x)} `);return answers.some(a=>h.includes(a))}
-function checkObject(heard){if(phase!=='name-object')return;const target=board[selectedIndex][0];if(heard.some(h=>isObjectAnswer(h,target)))return gradeAnswer(true);retryAnswer()}
+function checkObject(heard){if(phase!=='name-object')return;const target=board[selectedIndex][0];if(heard.some(h=>isObjectAnswer(h,target)))return gradeAnswer(true);const otherBoardItem=board.find((item,i)=>i!==selectedIndex&&heard.some(h=>isObjectAnswer(h,item[0])));if(otherBoardItem)return gradeAnswer(false);retryAnswer()}
 function retryAnswer(){if(phase!=='name-object')return;answerAttempts++;if(answerAttempts>=3){$('answerStatus').textContent='No chances left.';$('answerStatus').classList.remove('listening-state');return gradeAnswer(false)}voiceWanted=false;pauseRecognition();clearTimeout(answerListenTimer);const left=3-answerAttempts,word=left===1?'chance':'chances';$('answerStatus').textContent=`Say it again · ${left} ${word} remaining`;$('answerStatus').classList.remove('listening-state');$('feedback').textContent=`Say it again · ${left} ${word} remaining`;$('feedback').className='feedback bad';currentPrompt='';const waitingFor=selectedIndex;answerListenTimer=setTimeout(()=>{answerListenTimer=null;if(phase!=='name-object'||selectedIndex!==waitingFor)return;voiceWanted=true;startAlwaysListening()},2000)}
 function gradeAnswer(ok){if(!['name-object'].includes(phase))return;clearTimeout(answerListenTimer);answerListenTimer=null;phase='checking';voiceWanted=false;pauseRecognition();$('answerDialog').classList.add('hidden');const item=board[selectedIndex],chosen=$('board').children[selectedIndex];chosen.innerHTML=`<span class="emoji">${item[1]}</span>`;chosen.className='card '+(ok?'correct':'wrong');if(ok){score++;correct++;$('feedback').textContent='Correct! +1';$('feedback').className='feedback good';speak('Correct!')}else{score--;wrong++;$('feedback').textContent=`It was ${item[0]}. −1`;$('feedback').className='feedback bad';speak(item[0])}$('score').textContent=score;answered.add(selectedIndex);setTimeout(beginNumberChoice,1450)}
 function startAlwaysListening(){
